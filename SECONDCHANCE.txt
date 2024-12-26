@@ -1,0 +1,90 @@
+#include<iostream>
+#include<cstring>
+#include<sstream>
+using namespace std;
+static bool find_Update(int x,int arr[],
+                bool second_chance[],int frames)
+ 
+{
+    int i;
+     
+    for(i = 0; i < frames; i++)
+    {
+         
+        if(arr[i] == x)
+        {
+            second_chance[i] = true;
+            return true;
+        }
+    }
+    return false;
+     
+}
+
+static int replace_Update(int x,int arr[],
+            bool second_chance[],int frames,int pointer)
+{
+    while(true)
+    {
+        if(!second_chance[pointer])
+        {
+            arr[pointer] = x;
+            return (pointer + 1) % frames;
+        }
+        second_chance[pointer] = false;
+        pointer = (pointer + 1) % frames;
+    }
+}
+ 
+static void printHits_Faults(string ref_string,
+                                            int frames)
+{
+    int pointer, i, l=0, x, pf;
+    pointer = 0;
+    pf = 0;
+    int arr[frames];
+    memset(arr, -1, sizeof(arr));
+    bool second_chance[frames];
+     
+    string str[100];
+    string word = "";
+    for (auto x : ref_string)
+    {
+        if (x == ' ')
+        {
+            str[l]=word;
+            word = "";
+            l++;
+        }
+        else
+        {
+            word = word + x;
+        }
+    }
+    str[l] = word;
+    l++;
+     
+    for(i = 0; i < l; i++)
+    {
+        x = stoi(str[i]);
+        if(!find_Update(x,arr,second_chance,frames))
+        {
+            pointer = replace_Update(x,arr,
+                    second_chance,frames,pointer);
+            pf++;
+        }
+    }
+    cout << "Total page faults were " << pf << "\n";
+}
+int main()
+{
+    string ref_string = "";
+    int frames = 0;
+    ref_string = "0 5 1 4 2 5 3 4 2 5 0 4 1 5 2 4 3 5";
+    frames = 3;
+    printHits_Faults(ref_string,frames);
+    ref_string = "2 5 10 1 2 2 6 9 1 2 10 2 6 1 2 1 6 9 5 1";
+    frames = 4;
+    printHits_Faults(ref_string,frames);
+    return 0;
+}
